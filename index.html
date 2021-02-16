@@ -1,0 +1,905 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
+          integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+          crossorigin="" />
+
+    <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
+            integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
+            crossorigin=""></script>
+
+    <title>Map</title>
+
+</head>
+<body>
+        <style>
+
+
+            #mapid {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1;
+            }
+
+
+            .select-css {
+                position: absolute;
+                top: 30px;
+                right: 50px;
+                z-index: 6;
+                display: block;
+                font-size: 12px;
+                font-family: sans-serif;
+                font-weight: 700;
+                color: #444;
+                line-height: 1.3;
+                padding: .6em 1.4em .5em .8em;
+                width: 100%;
+                max-width: 100%;
+                box-sizing: border-box;
+                margin: 0;
+                border: 1px solid #aaa;
+                box-shadow: 0 1px 0 1px rgba(0,0,0,.04);
+                border-radius: .5em;
+                -moz-appearance: none;
+                -webkit-appearance: none;
+                background-color: white;
+                background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'), linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%);
+                background-repeat: no-repeat, repeat;
+                background-position: right .7em top 50%, 0 0;
+                background-size: .65em auto, 100%;
+            }
+
+            .select-css::-ms-expand {
+                display: none;
+            }
+
+            .select-css:hover {
+                border-color: #00688a;
+            }
+
+            .select-css:focus {
+                border-color: #aaa;
+                box-shadow: 0 0 1px 3px rgba(59, 153, 252, .7);
+                box-shadow: 0 0 0 3px;
+                color: #00688a;
+                outline: none;
+            }
+
+            .select-css option {
+                font-weight: 500;
+            }
+
+            *[dir="rtl"] .select-css, :root:lang(ar) .select-css, :root:lang(iw) .select-css {
+                background-position: left .7em top 50%, 0 0;
+                padding: .6em .8em .5em 1.4em;
+            }
+
+            /* Disabled styles */
+            .select-css:disabled, .select-css[aria-disabled=true] {
+                color: graytext;
+                background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22graytext%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'), linear-gradient(to bottom, #ffffff 0%,#e5e5e5 100%);
+            }
+
+            .select-css:disabled:hover, .select-css[aria-disabled=true] {
+                border-color: #aaa;
+            }
+
+            #tidetimes-widget {
+                display: none;
+                position: absolute;
+                top: 15px;
+                right: 350px;
+                z-index: 4;
+                background-color: white;
+                border: 2px solid #008CBA;
+                color: black;
+                padding: 16px 32px;
+                text-align: center;
+                text-decoration: none;
+                font-size: 14px;
+                margin: 4px 2px;
+                transition-duration: 0.4s;
+                cursor: pointer;
+                border-radius: .5em;
+                filter: drop-shadow(0 0 5px #333);
+                font-family: sans-serif;
+                font-weight: 700;
+            }
+
+                #tidetimes-widget:hover {
+                    background-color: #008CBA;
+                    color: white;
+                }
+
+            #rectangle {
+                position: absolute;
+                top: 20px;
+                right: 20px;
+                height: 50px;
+                width: 280px;
+                background-color: #008CBA;
+                border-radius: .5em;
+                margin-bottom: 30px;
+                float: left;
+                margin-right: 20px;
+                filter: drop-shadow(0 0 5px #333);
+                z-index: 4;
+            }
+        </style>
+
+    <div id="mapid">
+        <script src="index.js">
+        </script>
+    </div>
+
+<div id="rectangle"></div>
+
+<div class="form">
+    <form id="widgetform" actions="#" method="get" onclick="return false;">
+
+        <select name="loc" class="select-css" style="width:260px;" onchange="getLocation(this.value)">
+
+            <option value="" disabled selected="selected">Choose a Location...</option>
+            <option value="aberdaron">Aberdaron</option>
+            <option value="aberdeen">Aberdeen</option>
+            <option value="aberdovey">Aberdovey</option>
+            <option value="aberporth">Aberporth</option>
+            <option value="aberystwyth">Aberystwyth</option>
+            <option value="albert-bridge">Albert Bridge</option>
+            <option value="aldeburgh">Aldeburgh</option>
+            <option value="allington-lock">Allington Lock</option>
+            <option value="alloa">Alloa</option>
+            <option value="amble">Amble</option>
+            <option value="amlwch">Amlwch</option>
+            <option value="annan-waterfoot">Annan Waterfoot</option>
+            <option value="anstruther-easter">Anstruther Easter</option>
+            <option value="applecross">Applecross</option>
+            <option value="appledore">Appledore</option>
+            <option value="arbroath">Arbroath</option>
+            <option value="ardglass">Ardglass</option>
+            <option value="ardnave-point">Ardnave Point</option>
+            <option value="ardrossan">Ardrossan</option>
+            <option value="arklow">Arklow</option>
+            <option value="arnside">Arnside</option>
+            <option value="arrochar">Arrochar</option>
+            <option value="arundel">Arundel</option>
+            <option value="ayr">Ayr</option>
+            <option value="badcall-bay">Badcall Bay</option>
+            <option value="baginbun-head">Baginbun Head</option>
+            <option value="balbriggan">Balbriggan</option>
+            <option value="balivanich">Balivanich</option>
+            <option value="ballinskelligs-bay-castle">Ballinskelligs Bay Castle</option>
+            <option value="ballycastle-bay">Ballycastle Bay</option>
+            <option value="ballycotton">Ballycotton</option>
+            <option value="ballycrovane-harbour">Ballycrovane Harbour</option>
+            <option value="ballysadare-bay-culleenamore">Ballysadare Bay (Culleenamore)</option>
+            <option value="baltasound-pier">Baltasound Pier</option>
+            <option value="baltimore-ireland">Baltimore, Ireland</option>
+            <option value="banff">Banff</option>
+            <option value="bangor">Bangor</option>
+            <option value="bantry">Bantry</option>
+            <option value="barcaldine-pier">Barcaldine Pier</option>
+            <option value="bardsey-island">Bardsey Island</option>
+            <option value="barmouth">Barmouth</option>
+            <option value="barnstaple">Barnstaple</option>
+            <option value="barra-head">Barra Head</option>
+            <option value="barra-north-bay">Barra (North Bay)</option>
+            <option value="barrow-ramsden-dock">Barrow (Ramsden Dock)</option>
+            <option value="barry">Barry</option>
+            <option value="bartlett-creek">Bartlett Creek</option>
+            <option value="battlesbridge">Battlesbridge</option>
+            <option value="bawdsey">Bawdsey</option>
+            <option value="bay-of-laig">Bay Of Laig</option>
+            <option value="bay-of-quendale">Bay Of Quendale</option>
+            <option value="bays-loch">Bays Loch</option>
+            <option value="beachley-aust">Beachley (Aust)</option>
+            <option value="beaumaris">Beaumaris</option>
+            <option value="bee-ness">Bee Ness</option>
+            <option value="belfast">Belfast</option>
+            <option value="bembridge-approaches">Bembridge Approaches</option>
+            <option value="bembridge-harbour">Bembridge Harbour</option>
+            <option value="berkeley">Berkeley</option>
+            <option value="berwick">Berwick</option>
+            <option value="bideford">Bideford</option>
+            <option value="black-ball-harbour">Black Ball Harbour</option>
+            <option value="black-tar">Black Tar</option>
+            <option value="blackpool">Blackpool</option>
+            <option value="blacksod-quay">Blacksod Quay</option>
+            <option value="blacktoft">Blacktoft</option>
+            <option value="blakeney">Blakeney</option>
+            <option value="blakeney-bar">Blakeney Bar</option>
+            <option value="bluemull-sound">Bluemull Sound</option>
+            <option value="blyth">Blyth</option>
+            <option value="bofin-harbour">Bofin Harbour</option>
+            <option value="bognor-regis">Bognor Regis</option>
+            <option value="bonawe">Bonawe</option>
+            <option value="boscastle">Boscastle</option>
+            <option value="bosham">Bosham</option>
+            <option value="boston-england">Boston, England</option>
+            <option value="bouley-bay">Bouley Bay</option>
+            <option value="bournemouth">Bournemouth</option>
+            <option value="bovisand-pier">Bovisand Pier</option>
+            <option value="bowling">Bowling</option>
+            <option value="bradwell-waterside">Bradwell Waterside</option>
+            <option value="bramble-creek">Bramble Creek</option>
+            <option value="braye">Braye</option>
+            <option value="bridgwater">Bridgwater</option>
+            <option value="bridlington">Bridlington</option>
+            <option value="bridport-west-bay">Bridport (West Bay)</option>
+            <option value="brightlingsea">Brightlingsea</option>
+            <option value="brighton-marina">Brighton Marina</option>
+            <option value="broadford-bay">Broadford Bay</option>
+            <option value="broadhaven">Ballyglass (Broadhaven)</option>
+            <option value="broadstairs">Broadstairs</option>
+            <option value="brodick-bay">Brodick Bay</option>
+            <option value="brough">Brough</option>
+            <option value="bruichladdich">Bruichladdich</option>
+            <option value="buckie">Buckie</option>
+            <option value="bucklers-hard">Bucklers Hard</option>
+            <option value="bude">Bude</option>
+            <option value="bulbinbeg">Bulbinbeg</option>
+            <option value="bull-sand-fort">Bull Sand Fort</option>
+            <option value="bunessan">Bunessan</option>
+            <option value="bur-wick">Bur Wick</option>
+            <option value="burghead">Burghead</option>
+            <option value="burnham-on-crouch">Burnham-On-Crouch</option>
+            <option value="burnham-on-sea">Burnham-On-Sea</option>
+            <option value="burnham-overy-staithe">Burnham (Overy Staithe)</option>
+            <option value="burntisland">Burntisland</option>
+            <option value="burra-firth">Burra Firth</option>
+            <option value="burra-voe-yell-sound">Burra Voe (Yell Sound)</option>
+            <option value="burray-ness">Burray Ness</option>
+            <option value="burry-port">Burry Port</option>
+            <option value="bursledon">Bursledon</option>
+            <option value="burton-stather">Burton Stather</option>
+            <option value="burtonport">Burtonport</option>
+            <option value="caernarfon">Caernarfon</option>
+            <option value="caister-on-sea">Caister-On-Sea</option>
+            <option value="calf-sound">Calf Sound</option>
+            <option value="calshot-castle">Calshot Castle</option>
+            <option value="campbeltown">Campbeltown</option>
+            <option value="camus-nan-gall">Camus Nan Gall</option>
+            <option value="cape-cornwall">Cape Cornwall</option>
+            <option value="cardiff">Cardiff</option>
+            <option value="cardigan-town">Cardigan (Town)</option>
+            <option value="cargreen">Cargreen</option>
+            <option value="carloway">Carloway</option>
+            <option value="carmarthen">Carmarthen</option>
+            <option value="carnsore-point">Carnsore Point</option>
+            <option value="carradale">Carradale</option>
+            <option value="carrickfergus">Carrickfergus</option>
+            <option value="carrigaholt">Carrigaholt</option>
+            <option value="carsaig-bay">Carsaig Bay</option>
+            <option value="carsaig-bay-mull">Carsaig Bay (Mull)</option>
+            <option value="castle-bay">Castle Bay</option>
+            <option value="castletown-bearhaven">Castletown Bearhaven</option>
+            <option value="castletownshend">Castletownshend</option>
+            <option value="cemaes-bay">Cemaes Bay</option>
+            <option value="chatham-lock-approaches">Chatham (Lock Approaches)</option>
+            <option value="cheekpoint">Cheekpoint</option>
+            <option value="chelsea-bridge">Chelsea Bridge</option>
+            <option value="chepstow">Chepstow</option>
+            <option value="chesil-beach">Chesil Beach</option>
+            <option value="chesil-cove">Chesil Cove</option>
+            <option value="chester">Chester</option>
+            <option value="chichester-harbour-entrance">Chichester Harbour (Entrance)</option>
+            <option value="christchurch-entrance">Christchurch (Entrance)</option>
+            <option value="christchurch-quay">Christchurch (Quay)</option>
+            <option value="christchurch-tuckton">Christchurch (Tuckton)</option>
+            <option value="clacton-on-sea">Clacton-On-Sea</option>
+            <option value="clare-island">Clare Island</option>
+            <option value="cleavel-point">Cleavel Point</option>
+            <option value="clevedon">Clevedon</option>
+            <option value="clifden-bay">Clifden Bay</option>
+            <option value="clonakilty-bay">Clonakilty Bay</option>
+            <option value="clovelly">Clovelly</option>
+            <option value="clydebank-rothesay-dock">Clydebank (Rothesay Dock)</option>
+            <option value="cobh">Cobh</option>
+            <option value="cockenzie">Cockenzie</option>
+            <option value="colchester">Colchester</option>
+            <option value="coleraine">Coleraine</option>
+            <option value="colwyn-bay">Colwyn Bay</option>
+            <option value="coney-island">Coney Island</option>
+            <option value="connahs-quay">Connah's Quay</option>
+            <option value="connel">Connel</option>
+            <option value="conwy">Conwy</option>
+            <option value="coquet-island">Coquet Island</option>
+            <option value="cork-city">Cork City</option>
+            <option value="corpach">Corpach</option>
+            <option value="corran">Corran</option>
+            <option value="coryton">Coryton</option>
+            <option value="cotehele-quay">Cotehele Quay</option>
+            <option value="coulport">Coulport</option>
+            <option value="courtmacsherry">Courtmacsherry</option>
+            <option value="courtown">Courtown</option>
+            <option value="coverack">Coverack</option>
+            <option value="cowes">Cowes</option>
+            <option value="craighouse">Craighouse</option>
+            <option value="craignure">Craignure</option>
+            <option value="cranfield-point">Cranfield Point</option>
+            <option value="cranford-bay">Cranford Bay</option>
+            <option value="criccieth">Criccieth</option>
+            <option value="cromane-point">Cromane Point</option>
+            <option value="cromarty">Cromarty</option>
+            <option value="cromer">Cromer</option>
+            <option value="crookhaven">Crookhaven</option>
+            <option value="culdaff-bay">Culdaff Bay</option>
+            <option value="culmore-point">Culmore Point</option>
+            <option value="cumberland-basin-entrance">Cumberland Basin Entrance</option>
+            <option value="cushendun">Cushendun</option>
+            <option value="dale-roads">Dale Roads</option>
+            <option value="darnett-ness">Darnett Ness</option>
+            <option value="dartmouth">Dartmouth</option>
+            <option value="deal">Deal</option>
+            <option value="deer-sound">Deer Sound</option>
+            <option value="dell-quay">Dell Quay</option>
+            <option value="dingle-harbour">Dingle Harbour</option>
+            <option value="dingwall-cromarty-firth">Dingwall (Cromarty Firth)</option>
+            <option value="donaghadee">Donaghadee</option>
+            <option value="donegal-harbour-salt-hill-quay">Donegal Harbour (Salt Hill Quay)</option>
+            <option value="dornie-bridge">Dornie Bridge</option>
+            <option value="douglas">Douglas</option>
+            <option value="dover">Dover</option>
+            <option value="downies-bay">Downies Bay</option>
+            <option value="drogheda">Drogheda</option>
+            <option value="drummore">Drummore</option>
+            <option value="dublin-bar">Dublin Bar</option>
+            <option value="dublin-north-wall">Dublin (North Wall)</option>
+            <option value="duddon-bar">Duddon Bar</option>
+            <option value="dun-laoghaire">Dun Laoghaire</option>
+            <option value="dunany-point">Dunany Point</option>
+            <option value="dunbar">Dunbar</option>
+            <option value="dunbeacon-harbour">Dunbeacon Harbour</option>
+            <option value="duncansby-head">Duncansby Head</option>
+            <option value="dundalk">Dundalk</option>
+            <option value="dundee">Dundee</option>
+            <option value="dungarvan-harbour">Dungarvan Harbour</option>
+            <option value="dungeness">Dungeness</option>
+            <option value="dunkerron-harbour">Dunkerron Harbour</option>
+            <option value="dunmanus-harbour">Dunmanus Harbour</option>
+            <option value="dunmore-east">Dunmore East</option>
+            <option value="dunstaffnage-bay">Dunstaffnage Bay</option>
+            <option value="dury-voe">Dury Voe</option>
+            <option value="e-loch-tarbert">E. Loch Tarbert</option>
+            <option value="east-loch-tarbert">East Loch Tarbert</option>
+            <option value="eastbourne">Eastbourne</option>
+            <option value="eastham">Eastham</option>
+            <option value="egilsay">Egilsay</option>
+            <option value="english-and-welsh-grounds">English And Welsh Grounds</option>
+            <option value="epney">Epney</option>
+            <option value="erith">Erith</option>
+            <option value="esha-ness-hamna-voe">Esha Ness (Hamna Voe)</option>
+            <option value="exmouth-approaches">Exmouth (Approaches)</option>
+            <option value="exmouth-dock">Exmouth Dock</option>
+            <option value="eyemouth">Eyemouth</option>
+            <option value="fair-isle">Fair Isle</option>
+            <option value="falmouth">Falmouth</option>
+            <option value="fanad-head">Fanad Head</option>
+            <option value="fannys-bay">Fanny's Bay</option>
+            <option value="faslane">Faslane</option>
+            <option value="faversham">Faversham</option>
+            <option value="felixstowe-pier">Felixstowe Pier</option>
+            <option value="fenit-pier">Fenit Pier</option>
+            <option value="ferryside">Ferryside</option>
+            <option value="fethard-on-sea">Fethard-On-Sea</option>
+            <option value="fiddlers-ferry">Fiddler's Ferry</option>
+            <option value="fidra">Fidra</option>
+            <option value="filey-bay">Filey Bay</option>
+            <option value="fishguard">Fishguard</option>
+            <option value="flannan-isles">Flannan Isles</option>
+            <option value="flat-holm">Flat Holm</option>
+            <option value="fleetwood">Fleetwood</option>
+            <option value="flixborough-wharf">Flixborough Wharf</option>
+            <option value="folkestone">Folkestone</option>
+            <option value="folly-inn">Folly Inn</option>
+            <option value="foreland-lifeboat-slip">Foreland (Lifeboat Slip)</option>
+            <option value="formby">Formby</option>
+            <option value="fort-belan">Fort Belan</option>
+            <option value="fortrose">Fortrose</option>
+            <option value="foula">Foula</option>
+            <option value="fowey">Fowey</option>
+            <option value="foynes-island">Foynes Island</option>
+            <option value="fraserburgh">Fraserburgh</option>
+            <option value="fremington">Fremington</option>
+            <option value="freshwater-bay">Freshwater Bay</option>
+            <option value="gairloch">Gairloch</option>
+            <option value="galmisdale-pier">Galmisdale Pier</option>
+            <option value="galway">Galway</option>
+            <option value="garelochhead">Garelochhead</option>
+            <option value="garlieston">Garlieston</option>
+            <option value="garston">Garston</option>
+            <option value="gills-bay">Gills Bay</option>
+            <option value="girvan">Girvan</option>
+            <option value="glasgow">Glasgow</option>
+            <option value="glasson-dock">Glasson Dock</option>
+            <option value="glenelg-bay">Glenelg Bay</option>
+            <option value="glengarrisdale-bay">Glengarrisdale Bay</option>
+            <option value="golspie">Golspie</option>
+            <option value="goole">Goole</option>
+            <option value="gorleston-on-sea">Great Yarmouth (Gorleston-On-Sea)</option>
+            <option value="gott-bay">Gott Bay</option>
+            <option value="grangemouth">Grangemouth</option>
+            <option value="granton">Granton</option>
+            <option value="gravesend">Gravesend</option>
+            <option value="great-saltee">Great Saltee</option>
+            <option value="great-yarmouth-britannia-pier">Great Yarmouth (Britannia Pier)</option>
+            <option value="greenock">Greenock</option>
+            <option value="greenore">Greenore</option>
+            <option value="greenway-quay">Greenway Quay</option>
+            <option value="greystones">Greystones</option>
+            <option value="grimsby">Grimsby</option>
+            <option value="grovehurst-jetty">Grovehurst Jetty</option>
+            <option value="gweedore-harbour">Gweedore Harbour</option>
+            <option value="hale-head">Hale Head</option>
+            <option value="halfway-shoal">Halfway Shoal</option>
+            <option value="hammersmith-bridge">Hammersmith Bridge</option>
+            <option value="hartlepool">Hartlepool</option>
+            <option value="harwich">Harwich</option>
+            <option value="hastings">Hastings</option>
+            <option value="haverfordwest">Haverfordwest</option>
+            <option value="haws-point">Haws Point</option>
+            <option value="helensburgh">Helensburgh</option>
+            <option value="helford-river-entrance">Helford River (Entrance)</option>
+            <option value="helmsdale">Helmsdale</option>
+            <option value="herne-bay">Herne Bay</option>
+            <option value="hestan-island">Hestan Island</option>
+            <option value="heysham">Heysham</option>
+            <option value="hilbre-island">Hilbre Island</option>
+            <option value="hillswick">Hillswick</option>
+            <option value="hinkley-point">Hinkley Point</option>
+            <option value="holliwell-point">Holliwell Point</option>
+            <option value="holy-island">Holy Island</option>
+            <option value="holyhead">Holyhead</option>
+            <option value="howth">Howth</option>
+            <option value="hull-albert-dock">Hull (Albert Dock)</option>
+            <option value="hull-alexandra-dock">Hull (Alexandra Dock)</option>
+            <option value="hull-king-george-dock">Hull (King George Dock)</option>
+            <option value="hullbridge">Hullbridge</option>
+            <option value="humber-bridge">Humber Bridge</option>
+            <option value="humber-sea-terminal">Humber Sea Terminal</option>
+            <option value="hunstanton">Hunstanton</option>
+            <option value="hurst-point">Hurst Point</option>
+            <option value="iken-cliffs">Iken Cliffs</option>
+            <option value="ilfracombe">Ilfracombe</option>
+            <option value="immingham">Immingham</option>
+            <option value="inishbiggle">Inishbiggle</option>
+            <option value="inishbofin-bay">Inishbofin Bay</option>
+            <option value="inishgort">Inishgort</option>
+            <option value="inishtrahull">Inishtrahull</option>
+            <option value="inner-dowsing-light">Inner Dowsing Light</option>
+            <option value="inveraray">Inveraray</option>
+            <option value="invergordon">Invergordon</option>
+            <option value="inverie-bay">Inverie Bay</option>
+            <option value="inverness">Inverness</option>
+            <option value="inward-rocks">Inward Rocks</option>
+            <option value="iona">Iona</option>
+            <option value="ipswich">Ipswich</option>
+            <option value="irvine">Irvine</option>
+            <option value="isle-of-whithorn">Isle Of Whithorn</option>
+            <option value="itchenor">Itchenor</option>
+            <option value="jupiter-point">Jupiter Point</option>
+            <option value="keadby">Keadby</option>
+            <option value="kettletoft-pier">Kettletoft Pier</option>
+            <option value="kew-bridge">Kew Bridge</option>
+            <option value="kilbaha-bay">Kilbaha Bay</option>
+            <option value="kilkeel">Kilkeel</option>
+            <option value="kilkieran-cove">Kilkieran Cove</option>
+            <option value="killala-bay-inishcrone">Killala Bay (Inishcrone)</option>
+            <option value="killard-point">Killard Point</option>
+            <option value="killary-harbour">Killary Harbour</option>
+            <option value="killeany-bay">Inishmore (Killeany Bay)</option>
+            <option value="killough-harbour">Killough Harbour</option>
+            <option value="killybegs">Killybegs</option>
+            <option value="killyleagh">Killyleagh</option>
+            <option value="kilmokea-point">Kilmokea Point</option>
+            <option value="kilrush">Kilrush</option>
+            <option value="kincardine">Kincardine</option>
+            <option value="kings-lynn">King's Lynn</option>
+            <option value="kinsale">Kinsale</option>
+            <option value="kirkcaldy">Kirkcaldy</option>
+            <option value="kirkcudbright-bay">Kirkcudbright Bay</option>
+            <option value="kirkwall">Kirkwall</option>
+            <option value="knights-town">Knights Town</option>
+            <option value="kyle-of-durness">Kyle Of Durness</option>
+            <option value="kyle-of-lochalsh">Kyle Of Lochalsh</option>
+            <option value="lamlash">Lamlash</option>
+            <option value="lancaster">Lancaster</option>
+            <option value="langstone-harbour">Langstone Harbour</option>
+            <option value="larne">Larne</option>
+            <option value="lawyers-creek">Lawyer's Creek</option>
+            <option value="lee-on-the-solent">Lee-On-The-Solent</option>
+            <option value="leith">Leith</option>
+            <option value="lerwick">Lerwick</option>
+            <option value="leverburgh">Leverburgh</option>
+            <option value="limerick-dock">Limerick Dock</option>
+            <option value="liscannor">Liscannor</option>
+            <option value="little-bernera">Little Bernera</option>
+            <option value="little-haven">Little Haven</option>
+            <option value="littlehampton-entrance">Littlehampton (Entrance)</option>
+            <option value="littlehampton-uma-wharf">Littlehampton (Uma Wharf)</option>
+            <option value="liverpool-alfred-dock">Seacombe (Alfred Dock)</option>
+            <option value="liverpool-gladstone-dock">Liverpool (Gladstone Dock)</option>
+            <option value="lizard-point">Lizard Point</option>
+            <option value="llanddwyn-island">Llanddwyn Island</option>
+            <option value="llandudno">Llandudno</option>
+            <option value="llanelli">Llanelli</option>
+            <option value="llanthony">Llanthony</option>
+            <option value="loch-a-bhraige">Loch A' Bhraige</option>
+            <option value="loch-aline">Loch Aline</option>
+            <option value="loch-beag">Loch Beag</option>
+            <option value="loch-bervie">Kinlochbervie</option>
+            <option value="loch-boisdale">Loch Boisdale</option>
+            <option value="loch-carnan">Loch Carnan</option>
+            <option value="loch-creran-head">Loch Creran Head</option>
+            <option value="loch-dunvegan">Loch Dunvegan</option>
+            <option value="loch-eatharna">Loch Eatharna</option>
+            <option value="loch-eil-head">Loch Eil Head</option>
+            <option value="loch-harport">Loch Harport</option>
+            <option value="loch-hourn">Loch Hourn</option>
+            <option value="loch-inver">Loch Inver</option>
+            <option value="loch-laxford">Loch Laxford</option>
+            <option value="loch-leven-head">Loch Leven Head</option>
+            <option value="loch-maddy">Lochmaddy</option>
+            <option value="loch-melfort">Loch Melfort</option>
+            <option value="loch-moidart">Loch Moidart</option>
+            <option value="loch-nedd">Loch Nedd</option>
+            <option value="loch-ranza">Loch Ranza</option>
+            <option value="loch-scresort">Loch Scresort</option>
+            <option value="loch-shell">Loch Shell</option>
+            <option value="loch-skiport">Loch Skipport</option>
+            <option value="loch-snizort-uig-bay">Loch Snizort (Uig Bay)</option>
+            <option value="lochgoilhead">Lochgoilhead</option>
+            <option value="london-bridge-tower-pier">London Bridge (Tower Pier)</option>
+            <option value="londonderry">Londonderry</option>
+            <option value="looe">Looe</option>
+            <option value="lopwell">Lopwell</option>
+            <option value="lossiemouth">Lossiemouth</option>
+            <option value="lostwithiel">Lostwithiel</option>
+            <option value="loth">Loth</option>
+            <option value="loughros-more-bay">Loughros More Bay</option>
+            <option value="lowestoft">Lowestoft</option>
+            <option value="luce-bay-offshore-platform">Luce Bay (Offshore Platform)</option>
+            <option value="lulworth-cove">Lulworth Cove</option>
+            <option value="lundy">Lundy</option>
+            <option value="lyme-regis">Lyme Regis</option>
+            <option value="lymington">Lymington</option>
+            <option value="lynmouth">Lynmouth</option>
+            <option value="machrihanish">Machrihanish</option>
+            <option value="malahide">Malahide</option>
+            <option value="maldon">Maldon</option>
+            <option value="mallaig">Mallaig</option>
+            <option value="margate">Margate</option>
+            <option value="marino-point">Marino Point</option>
+            <option value="martins-haven">Martin's Haven</option>
+            <option value="maryport">Maryport</option>
+            <option value="maseline-pier">Maseline Pier</option>
+            <option value="mcdermott-base">Mcdermott Base</option>
+            <option value="meikle-ferry">Meikle Ferry</option>
+            <option value="mellon-charles">Mellon Charles</option>
+            <option value="mellon-point">Mellon Point</option>
+            <option value="menai-bridge">Menai Bridge</option>
+            <option value="methil">Methil</option>
+            <option value="mevagissey">Mevagissey</option>
+            <option value="mid-yell">Mid Yell</option>
+            <option value="middlesbrough-dock-entrance">Middlesbrough (Dock Entrance)</option>
+            <option value="milford-haven">Milford Haven</option>
+            <option value="millport">Millport</option>
+            <option value="minehead">Minehead</option>
+            <option value="minsmere-sluice">Minsmere Sluice</option>
+            <option value="minsterworth">Minsterworth</option>
+            <option value="mistley">Mistley</option>
+            <option value="moelfre">Moelfre</option>
+            <option value="montrose">Montrose</option>
+            <option value="morecambe">Morecambe</option>
+            <option value="mostyn-docks">Mostyn Docks</option>
+            <option value="moville">Moville</option>
+            <option value="muckle-skerry">Muckle Skerry</option>
+            <option value="mullaghmore">Mullaghmore</option>
+            <option value="mulroy-bay-bar">Mulroy Bay Bar</option>
+            <option value="mumbles">Mumbles</option>
+            <option value="mupe-bay">Mupe Bay</option>
+            <option value="nab-tower">Nab Tower</option>
+            <option value="nairn">Nairn</option>
+            <option value="narlwood-rocks">Narlwood Rocks</option>
+            <option value="nato-jetty">Nato Jetty</option>
+            <option value="new-hythe">New Hythe</option>
+            <option value="new-quay">New Quay</option>
+            <option value="new-ross">New Ross</option>
+            <option value="newburgh">Newburgh</option>
+            <option value="newcastle-n-ireland">Newcastle (N.Ireland)</option>
+            <option value="newcastle-upon-tyne">Newcastle upon Tyne</option>
+            <option value="newhaven">Newhaven</option>
+            <option value="newport">Newport</option>
+            <option value="newport-isle-of-wight">Newport (Isle Of Wight)</option>
+            <option value="newquay">Newquay</option>
+            <option value="newry-victoria-lock">Newry (Victoria Lock)</option>
+            <option value="neyland">Neyland</option>
+            <option value="north-fambridge">North Fambridge</option>
+            <option value="north-sunderland-northumberland">North Sunderland (Northumberland)</option>
+            <option value="north-woolwich">North Woolwich</option>
+            <option value="northney">Northney</option>
+            <option value="oban">Oban</option>
+            <option value="orford-haven-bar">Orford Haven Bar</option>
+            <option value="orford-ness">Orford Ness</option>
+            <option value="orford-quay">Orford Quay</option>
+            <option value="orsay">Orsay</option>
+            <option value="osea-island">Osea Island</option>
+            <option value="out-skerries">Out Skerries</option>
+            <option value="outer-westmark-knock">Outer Westmark Knock</option>
+            <option value="owston-ferry">Owston Ferry</option>
+            <option value="padstow">Padstow</option>
+            <option value="pagham">Pagham</option>
+            <option value="par">Par</option>
+            <option value="peel">Peel</option>
+            <option value="penzance-newlyn">Penzance (Newlyn)</option>
+            <option value="perranporth">Perranporth</option>
+            <option value="perth">Perth</option>
+            <option value="peterhead">Peterhead</option>
+            <option value="pierowall">Pierowall</option>
+            <option value="plockton">Plockton</option>
+            <option value="plymouth-devonport">Plymouth (Devonport)</option>
+            <option value="poole-entrance">Poole (Entrance)</option>
+            <option value="poole-harbour">Poole Harbour</option>
+            <option value="porlock-bay">Porlock Bay</option>
+            <option value="port-appin">Port Appin</option>
+            <option value="port-askaig">Port Askaig</option>
+            <option value="port-cardigan">Port Cardigan</option>
+            <option value="port-dinorwic">Port Dinorwic</option>
+            <option value="port-ellen">Port Ellen</option>
+            <option value="port-erin">Port Erin</option>
+            <option value="port-glasgow">Port Glasgow</option>
+            <option value="port-isaac">Port Isaac</option>
+            <option value="port-of-bristol-avonmouth">Port of Bristol (Avonmouth)</option>
+            <option value="port-st-mary">Port St. Mary</option>
+            <option value="port-sutton-bridge">Port Sutton Bridge</option>
+            <option value="port-talbot">Port Talbot</option>
+            <option value="port-william">Port William</option>
+            <option value="portavogie">Portavogie</option>
+            <option value="porth-dinllaen">Porth Dinllaen</option>
+            <option value="porth-trecastell">Porth Trecastell</option>
+            <option value="porth-ysgaden">Porth Ysgaden</option>
+            <option value="porthcawl">Porthcawl</option>
+            <option value="porthgain">Porthgain</option>
+            <option value="porthleven">Porthleven</option>
+            <option value="porthmadog">Porthmadog</option>
+            <option value="portishead">Portishead</option>
+            <option value="portland">Portland</option>
+            <option value="portmahomack">Portmahomack</option>
+            <option value="portnancon">Portnancon</option>
+            <option value="portpatrick">Portpatrick</option>
+            <option value="portree">Portree</option>
+            <option value="portrush">Portrush</option>
+            <option value="portsmouth">Portsmouth</option>
+            <option value="pottery-pier">Pottery Pier</option>
+            <option value="preston">Preston</option>
+            <option value="pwllheli">Pwllheli</option>
+            <option value="quigleys-point">Quigley's Point</option>
+            <option value="quoile-barrier">Quoile Barrier</option>
+            <option value="ramsey">Ramsey</option>
+            <option value="ramsey-sound">Ramsey Sound</option>
+            <option value="ramsgate">Ramsgate</option>
+            <option value="rapness">Rapness</option>
+            <option value="rathmullan">Rathmullan</option>
+            <option value="red-bay">Red Bay</option>
+            <option value="redbridge">Redbridge</option>
+            <option value="redkirk">Redkirk</option>
+            <option value="rhu-marina">Rhu Marina</option>
+            <option value="richborough">Richborough</option>
+            <option value="richmond-lock">Richmond Lock</option>
+            <option value="ringaskiddy">Ringaskiddy</option>
+            <option value="river-boyne-bar">River Boyne Entrance</option>
+            <option value="river-foyle-lisahally">River Foyle (Lisahally)</option>
+            <option value="river-neath-entrance">River Neath Entrance</option>
+            <option value="river-tay-bar">River Tay Bar</option>
+            <option value="river-tees-entrance">River Tees Entrance</option>
+            <option value="river-tyne-north-shields">River Tyne (North Shields)</option>
+            <option value="river-yealm-entrance">River Yealm Entrance</option>
+            <option value="roa-island">Roa Island</option>
+            <option value="roberts-cove">Roberts Cove</option>
+            <option value="rochester-strood-pier">Rochester (Strood Pier)</option>
+            <option value="rochford">Rochford</option>
+            <option value="rockall">Rockall</option>
+            <option value="rona">Rona</option>
+            <option value="roonah-quay">Roonah Quay</option>
+            <option value="rosneath">Rosneath</option>
+            <option value="rosslare-europort">Rosslare Europort</option>
+            <option value="rosyth">Rosyth</option>
+            <option value="rothesay-bay">Rothesay Bay</option>
+            <option value="roundstone-bay">Roundstone Bay</option>
+            <option value="rubh-a-mhail">Rubh' A' Mhail</option>
+            <option value="rubha-a-bhodaich">Rubha A' Bhodaich</option>
+            <option value="rubha-na-creige">Rubha Na Creige</option>
+            <option value="ryde">Ryde</option>
+            <option value="rye-approaches">Rye (Approaches)</option>
+            <option value="rye-harbour">Rye (Harbour)</option>
+            <option value="s-e-long-sand">S.E. Long Sand</option>
+            <option value="salcombe">Salcombe</option>
+            <option value="salen">Salen</option>
+            <option value="salen-sound-of-mull">Salen (Sound Of Mull)</option>
+            <option value="saltash">Saltash</option>
+            <option value="sandown">Sandown</option>
+            <option value="scalasaig">Scalasaig</option>
+            <option value="scalloway">Scalloway</option>
+            <option value="scarborough">Scarborough</option>
+            <option value="schull">Schull</option>
+            <option value="scolpaig">Scolpaig</option>
+            <option value="scrabster">Scrabster</option>
+            <option value="sea-mills">Sea Mills</option>
+            <option value="seafield-point">Seafield Point</option>
+            <option value="seaham">Seaham</option>
+            <option value="seamount-bay">Seamount Bay</option>
+            <option value="seil-sound">Seil Sound</option>
+            <option value="selsey-bill">Selsey Bill</option>
+            <option value="sennen-cove">Sennen Cove</option>
+            <option value="sharpness-dock">Sharpness Dock</option>
+            <option value="sheerness">Sheerness</option>
+            <option value="shieldaig">Shieldaig</option>
+            <option value="shillay">Shillay</option>
+            <option value="shirehampton">Shirehampton</option>
+            <option value="shivering-sand">Shivering Sand</option>
+            <option value="shoreham">Shoreham</option>
+            <option value="silloth">Silloth</option>
+            <option value="skegness">Skegness</option>
+            <option value="skomer-island">Skomer Island</option>
+            <option value="slaughden-quay">Slaughden Quay</option>
+            <option value="sligo-harbour-oyster-island">Sligo Harbour (Oyster Island)</option>
+            <option value="slyne-head">Slyne Head</option>
+            <option value="smerwick-harbour">Smerwick Harbour</option>
+            <option value="soldiers-point">Soldiers Point</option>
+            <option value="solva">Solva</option>
+            <option value="sound-of-gigha">Sound Of Gigha</option>
+            <option value="south-rock">South Rock</option>
+            <option value="southampton">Southampton</option>
+            <option value="southend-kintyre">Southend (Kintyre)</option>
+            <option value="southend-on-sea">Southend-On-Sea</option>
+            <option value="southerness-point">Southerness Point</option>
+            <option value="southport">Southport</option>
+            <option value="southwold">Southwold</option>
+            <option value="spurn-head">Spurn Head</option>
+            <option value="st-catherine-bay">St. Catherine Bay</option>
+            <option value="st-germans">St. Germans</option>
+            <option value="st-helier">St. Helier</option>
+            <option value="st-ives">St. Ives</option>
+            <option value="st-kilda">Hirta (Bagh A' Bhaile)</option>
+            <option value="st-marys">St. Mary's</option>
+            <option value="st-marys-scapa-flow">St. Mary's (Scapa Flow)</option>
+            <option value="st-peter-port">St. Peter Port</option>
+            <option value="st-thomas-head">St. Thomas's Head</option>
+            <option value="st-tudwals-roads">St. Tudwal's Roads</option>
+            <option value="stackpole-quay">Stackpole Quay</option>
+            <option value="stansore-point">Stansore Point</option>
+            <option value="starcross">Starcross</option>
+            <option value="start-point">Start Point</option>
+            <option value="steep-holm">Steep Holm</option>
+            <option value="stirling">Stirling</option>
+            <option value="stoke-gabriel-duncannon">Stoke Gabriel (Duncannon)</option>
+            <option value="stonehaven">Stonehaven</option>
+            <option value="stornoway">Stornoway</option>
+            <option value="strangford">Strangford</option>
+            <option value="stranraer">Stranraer</option>
+            <option value="stroma">Stroma</option>
+            <option value="stromness">Stromness</option>
+            <option value="sudbrook">Sudbrook</option>
+            <option value="sule-skerry">Sule Skerry</option>
+            <option value="sullom-voe">Sullom Voe</option>
+            <option value="sumburgh-grutness-voe">Sumburgh (Grutness Voe)</option>
+            <option value="sunderland">Sunderland</option>
+            <option value="sunk-dredged-channel">Sunk Dredged Channel</option>
+            <option value="sunk-head">Sunk Head</option>
+            <option value="swanage">Swanage</option>
+            <option value="swansea">Swansea</option>
+            <option value="tabs-head">Tabs Head</option>
+            <option value="tanera-mor">Tanera Mor</option>
+            <option value="tarbert-island">Tarbert Island</option>
+            <option value="tarn-point">Tarn Point</option>
+            <option value="tees-newport-bridge">Tees (Newport) Bridge</option>
+            <option value="teignmouth-approaches">Teignmouth (Approaches)</option>
+            <option value="teignmouth-new-quay">Teignmouth (New Quay)</option>
+            <option value="tenby">Tenby</option>
+            <option value="tighnabruaich">Tighnabruaich</option>
+            <option value="tilbury">Tilbury</option>
+            <option value="tingwall">Tingwall</option>
+            <option value="tobermory">Tobermory</option>
+            <option value="toft-pier">Toft Pier</option>
+            <option value="topsham">Topsham</option>
+            <option value="torduff-point">Torduff Point</option>
+            <option value="torquay">Torquay</option>
+            <option value="totland-bay">Totland Bay</option>
+            <option value="totnes">Totnes</option>
+            <option value="trawbreaga-bay">Trawbreaga Bay</option>
+            <option value="trearddur-bay">Trearddur Bay</option>
+            <option value="trefor">Trefor</option>
+            <option value="troon">Troon</option>
+            <option value="truro">Truro</option>
+            <option value="trwyn-dinmor">Trwyn Dinmor</option>
+            <option value="turf-lock">Turf Lock</option>
+            <option value="turnchapel">Turnchapel</option>
+            <option value="ullapool">Ullapool</option>
+            <option value="ulva-sound">Ulva Sound</option>
+            <option value="ulverston">Ulverston</option>
+            <option value="upnor">Upnor</option>
+            <option value="ventnor">Ventnor</option>
+            <option value="wadebridge">Wadebridge</option>
+            <option value="walton-on-the-naze">Walton-on-the-Naze</option>
+            <option value="wareham-river-frome">Wareham (River Frome)</option>
+            <option value="warren-lighthouse">Warren Lighthouse</option>
+            <option value="warrenpoint">Warrenpoint</option>
+            <option value="warsash">Warsash</option>
+            <option value="watchet">Watchet</option>
+            <option value="waterford">Waterford</option>
+            <option value="wellhouse-rock">Wellhouse Rock</option>
+            <option value="wells">Wells</option>
+            <option value="wells-bar">Wells Bar</option>
+            <option value="wemyss-bay">Wemyss Bay</option>
+            <option value="west-burra-firth">West Burra Firth</option>
+            <option value="west-cove">West Cove</option>
+            <option value="west-loch-tarbert">West Loch Tarbert</option>
+            <option value="west-mersea">West Mersea</option>
+            <option value="west-stones">West Stones</option>
+            <option value="weston-super-mare">Weston-super-Mare</option>
+            <option value="wexford-harbour">Wexford Harbour</option>
+            <option value="whitaker-beacon">Whitaker Beacon</option>
+            <option value="whitby">Whitby</option>
+            <option value="white-house">White House</option>
+            <option value="whitehall">Whitehall</option>
+            <option value="whitehaven">Whitehaven</option>
+            <option value="whitehills">Whitehills</option>
+            <option value="whitsand-bay">Whitsand Bay</option>
+            <option value="whitstable-approaches">Whitstable Approaches</option>
+            <option value="wick">Wick</option>
+            <option value="wicklow">Wicklow</option>
+            <option value="widewall-bay">Widewall Bay</option>
+            <option value="widnes">Widnes</option>
+            <option value="winterton-on-sea">Winterton-On-Sea</option>
+            <option value="wisbech">Wisbech</option>
+            <option value="wisbech-cut">Wisbech Cut</option>
+            <option value="woodbridge">Woodbridge</option>
+            <option value="woodbridge-haven">Woodbridge Haven</option>
+            <option value="workington">Workington</option>
+            <option value="worthing">Worthing</option>
+            <option value="wouldham">Wouldham</option>
+            <option value="wyre-lighthouse">Wyre Lighthouse</option>
+            <option value="yarmouth">Yarmouth</option>
+            <option value="yelland-marsh">Yelland Marsh</option>
+            <option value="youghal">Youghal</option>
+        </select>
+
+
+
+    </form>
+
+</div>
+
+
+
+
+
+
+
+
+<div id="tidelink">
+    <a id="tidetimes" target="_blank" href="#"><button id="tidetimes-widget">Tide Times</button></a>
+</div>
+
+
+<script type="text/javascript">
+    function getLocation(val) {
+        document.getElementById("tidetimes").href = "https://www.tidetimes.org.uk/" + val + "-tide-times";
+        document.getElementById("tidetimes-widget").style.display = "block";
+
+
+    }
+
+</script>
+
+
+
+</body>
+</html>

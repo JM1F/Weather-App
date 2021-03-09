@@ -24,7 +24,9 @@ Both websites need to be used for the weather app to properly work.
 #### 2. Once the map is clicked the address of the REST API is fetched and the longitude and latitude data is sent to it.
 #### 3. Now you need to open the GUI as shown above where you open the settings menu:
 
-![image](https://user-images.githubusercontent.com/71614127/110513736-78b35800-80fe-11eb-8232-3b6d570246e3.png)
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/71614127/110513736-78b35800-80fe-11eb-8232-3b6d570246e3.png">
+</p>
 
 #### 4. Here you can choose your city and the app will save it into a file so you don't have to go through the process again (Unless you want to change cities).
 
@@ -44,7 +46,7 @@ url3 = "http://api.openweathermap.org/data/2.5/find?lat={}&lon={}&cnt=10&appid={
 ```
 * Where the GUI on the front-end displays the data recieved from the OpenWeatherMap API. 
 
-#### REST API Module
+## REST API Module
 ```python
 # Rest API sends and recieves data, currently set up for local host.
 

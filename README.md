@@ -2,7 +2,7 @@
 
 This weather app displays weather data for a large amount of cities across the world. 
 
-All data is recieved from https://openweathermap.org/api.
+All data is received from https://openweathermap.org/api.
 
 GUI made using [python-tkinter](https://docs.python.org/3/library/tkinter.html)
 
@@ -44,11 +44,11 @@ Both websites need to be used for the weather app to properly work.
 ```python
 url3 = "http://api.openweathermap.org/data/2.5/find?lat={}&lon={}&cnt=10&appid={}".format(lat, long, APIKEY)
 ```
-* Where the GUI on the front-end displays the data recieved from the OpenWeatherMap API. 
+* Where the GUI on the front-end displays the data received from the OpenWeatherMap API. 
 
 ## REST API Module
 ```python
-# Rest API sends and recieves data, currently set up for local host.
+# Rest API sends and receives data, currently set up for local host.
 
 app = Flask(__name__)
 cors = CORS(app)
